@@ -1,0 +1,7 @@
+<%@ include file="header.jsp"%>
+<br>
+
+Welcome<br>
+<CENTER>
+<img src="images/banner-home-02.jpg" width="980" height="279" alt="" /><br><br><br>
+<%@ include file="footer.jsp"%>

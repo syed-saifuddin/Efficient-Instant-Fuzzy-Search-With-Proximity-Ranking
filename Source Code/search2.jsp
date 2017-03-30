@@ -1,0 +1,87 @@
+	<%@ include file="uheader.jsp"%>
+
+
+<%@ page  import="java.sql.*" import="java.util.Vector" import="databaseconnection.*"  import="Algorithm.*" import="javax.swing.JOptionPane"%>
+
+
+<%
+String query="";
+String query2="";
+String key=request.getParameter("search");
+System.out.println(key);
+if(key.contains("|"))
+{
+	String [] s=key.split("  |  ");
+	query=s[0];
+query2=s[1];
+System.out.println(s.length);
+
+}
+else
+{
+	query=key;
+}
+
+System.out.println(query);
+
+Vector set=GenerateSegmentations.m(query);
+System.out.println("---------"+set.size());
+
+%>
+<table cellspacing="20">
+<tr><td><h2>Record</h3> <td><h2>Title</h3><td><h2>Authors</h3>
+<%
+try{
+	String q1="select * from querydata where keywords='"+query2+"%' or ";	String q2="";
+	Connection con = databasecon.getconnection();
+	Statement st=con.createStatement();
+//for(int i=set.size();i>0;i--)
+	int ii=0;
+	for(int i=0;i<set.size();i++)
+	{
+
+	if(ii==0){
+	 	q2="keywords like '%"+set.get(i)+"%' or author like '%"+set.get(i)+"%'";
+		ii++;
+	}
+	else{
+		q2=q2+"or keywords like '%"+set.get(i)+"%'  or author like '%"+set.get(i)+"%' ";
+	}
+}
+
+
+System.out.println(q1+q2);
+ResultSet rs=st.executeQuery(q1+q2+" order by rank desc");
+int count=0;
+while(rs.next())
+{
+%>
+
+<tr><th><h3><%=++count%><td><a href="view.jsp?id=<%=rs.getString("rid")%>" target="_blank"><h3><%=rs.getString("data")%></a><th><h3><%=rs.getString("author")%>
+<%
+
+}
+%>
+</table>
+<br><br>
+<font size="+2" color="#d667a7">Fuzzy Search Results</font>
+<table >
+<%
+	Vector fset=ComputeValidPhrases.m(query);
+
+	for(int i=0;i<fset.size();i++)
+	{
+		%>
+		<tr><td><a href="search3.jsp?search=<%=fset.get(i)%>"><font size="+2" color="blue"><%=fset.get(i)%></font></a>
+		<%
+	}
+}
+catch(Exception e){
+System.out.println("Exception Occured"+e);
+e.printStackTrace();}
+
+
+%>
+
+</table>
+	<%@ include file="footer.jsp"%>
